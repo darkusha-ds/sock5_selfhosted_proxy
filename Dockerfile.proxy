@@ -1,0 +1,15 @@
+FROM debian:bookworm-slim
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends dante-server ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Непривилегированный пользователь для работы демона
+RUN useradd -r -s /usr/sbin/nologin danted || true
+
+COPY proxy_app/danted.conf /etc/danted.conf
+COPY proxy_app/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 1080/tcp 1080/udp
+ENTRYPOINT ["/entrypoint.sh"]
